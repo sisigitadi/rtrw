@@ -2806,6 +2806,10 @@
   }
 
   function closeMobileDrawer() {
+    var shell = document.getElementById('layout-app');
+    if (shell && shell.classList.contains('sidebar-pinned') && window.innerWidth > 960) {
+      return;
+    }
     var sidebar = document.getElementById('app-sidebar');
     var backdrop = document.getElementById('sidebar-backdrop');
     var toggleBtn = document.getElementById('btn-mobile-menu');
@@ -3069,7 +3073,7 @@
     }
 
     var simBar = document.getElementById('sim-bar');
-    if (simBar && isGasRuntime()) {
+    if (simBar) {
       simBar.hidden = true;
       simBar.style.display = 'none';
     }

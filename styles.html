@@ -197,7 +197,7 @@
     position: fixed;
     inset: 0;
     background-color: rgba(27, 38, 35, 0.45);
-    z-index: 35;
+    z-index: 45;
   }
 
   .sidebar-backdrop.is-open {
@@ -205,16 +205,24 @@
   }
 
   .app-sidebar {
-    width: 264px;
-    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 85vw;
     background-color: var(--color-surface);
     border-right: 1px solid var(--color-border);
     padding: var(--space-5) var(--space-3);
-    position: sticky;
-    top: 0;
-    height: 100vh;
     overflow-y: auto;
-    z-index: 40;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.18s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .app-sidebar.is-open {
+    transform: translateX(0);
   }
 
   .sidebar-header {
@@ -234,7 +242,7 @@
   }
 
   .sidebar-close-btn {
-    display: none;
+    display: inline-flex;
   }
 
   .sidebar-nav {
@@ -324,7 +332,9 @@
   }
 
   .mobile-menu-btn {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .header-user {
@@ -355,16 +365,9 @@
     flex: 1;
   }
 
-  /* Phase 1 Simulator Bar */
+  /* Phase 1 Simulator Bar (Disembunyikan untuk Presentasi Demo Klien Bersih) */
   .sim-bar {
-    background-color: var(--color-surface-subtle);
-    border-bottom: 1px solid var(--color-border);
-    padding: var(--space-2) var(--space-6);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
+    display: none !important;
   }
 
   .sim-bar-actions {
@@ -1124,6 +1127,27 @@
     }
 
     .responsive-table td:not([data-label])::before {
+      display: none;
+    }
+  }
+
+  /* Desktop Pinned Sidebar (Opsional jika ingin disematkan permanen) */
+  @media (min-width: 961px) {
+    .app-shell.sidebar-pinned .app-sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      transform: none;
+      box-shadow: none;
+      z-index: 40;
+      width: 264px;
+    }
+
+    .app-shell.sidebar-pinned .sidebar-backdrop {
+      display: none !important;
+    }
+
+    .app-shell.sidebar-pinned .sidebar-close-btn {
       display: none;
     }
   }
