@@ -120,3 +120,20 @@ Seluruh akun seed awal dari `setupDatabase()` menggunakan PIN awal **`123456`**:
 1. Masuk menggunakan setiap akun **Pengurus RT** dan **Pengurus RW**, lalu segera ganti PIN default `123456` melalui menu **Ubah PIN** (`/akun/pin`).
 2. Lakukan **Reset PIN** atau ubah PIN awal warga sebelum menyerahkan akses kepada warga sebenarnya.
 3. Jika aplikasi diperbarui di kemudian hari, gunakan **Deploy** > **Manage deployments** > edit deployment produksi > pilih **New version** agar `WEBAPP_URL` tidak berubah.
+
+---
+
+## 7. Publikasi Live Demo ke Custom Domain (https://rtrw.sigitadi.id/)
+
+Aplikasi mandiri Safe Preview Mode telah terkonfigurasi dan terpublikasi ke domain kustom **`https://rtrw.sigitadi.id/`** menggunakan GitHub Pages.
+
+### Konfigurasi DNS & Domain
+1. **File CNAME**: File `CNAME` berisi `rtrw.sigitadi.id` diletakkan pada root repositori dan branch publikasi `gh-pages`.
+2. **Sertifikat SSL/HTTPS**: GitHub Pages secara otomatis menerbitkan sertifikat SSL Let's Encrypt dengan opsi **Enforce HTTPS** aktif.
+3. **Penyelarasan DNS di DNS Manager / cPanel Zone Editor**:
+   - **Wajib Hapus**: Jika subdomain `rtrw.sigitadi.id` dibuat melalui cPanel, cPanel otomatis membuat *A record* mengarah ke IP hosting lokal (`103.153.3.19`). Hapus *A record* tersebut agar pengunjung tidak diarahkan ke halaman placeholder cPanel.
+   - **Record CNAME**: Pastikan hanya ada satu record untuk `rtrw`:
+     - **Name**: `rtrw` (atau `rtrw.sigitadi.id`)
+     - **Type**: `CNAME`
+     - **Target**: `sisigitadi.github.io.`
+     - **TTL**: 14400 (atau Automatic)

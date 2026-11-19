@@ -139,7 +139,7 @@ def generate():
     draw.line([(text_x, 480), (width - 70, 480)], fill=(32, 48, 52), width=1)
 
     # Footer domain & status
-    draw.text((text_x, 500), "https://sisigitadi.github.io/rtrw/", font=font_footer, fill=(100, 116, 139))
+    draw.text((text_x, 500), "https://rtrw.sigitadi.id/", font=font_footer, fill=(100, 116, 139))
     
     live_badge_text = "Live Demo Online"
     bbox_live = font_footer.getbbox(live_badge_text)
