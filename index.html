@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Masuk ke SiWarga RT/RW untuk layanan administrasi warga RT dan RW.">
+  <title>SiWarga RT/RW</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <?!= include('styles'); ?>
+</head>
+<body>
+  <div id="layout-public" class="public-shell" hidden>
+    <a href="#public-content" class="skip-link">Langsung ke konten utama</a>
+    <header class="public-header">
+      <div class="public-header-inner">
+        <a href="#/masuk" class="brand-wordmark">SiWarga RT/RW</a>
+        <span class="text-sm text-muted">Portal Administrasi Warga</span>
+      </div>
+    </header>
+    <main id="public-content" class="public-main" tabindex="-1"></main>
+  </div>
+
+  <div id="layout-app" class="app-shell" hidden>
+    <a href="#app-content" class="skip-link">Langsung ke konten utama</a>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+    <aside id="app-sidebar" class="app-sidebar" aria-label="Menu Navigasi"></aside>
+
+    <div class="app-main">
+      <header class="app-header">
+        <div class="header-brand">
+          <button
+            type="button"
+            id="btn-mobile-menu"
+            class="btn btn-secondary btn-sm mobile-menu-btn"
+            aria-controls="app-sidebar"
+            aria-expanded="false"
+          >
+            Menu
+          </button>
+          <span class="app-header-title">SiWarga RT/RW</span>
+          <span id="header-wilayah-badge" class="badge badge-brand"></span>
+        </div>
+
+        <div class="header-user">
+          <div class="header-user-info">
+            <span id="header-user-name" class="header-user-name"></span>
+            <span id="header-user-role" class="header-user-role text-sm text-muted"></span>
+          </div>
+          <button type="button" id="btn-refresh-data" class="btn btn-secondary btn-sm">Segarkan Data</button>
+          <button type="button" id="btn-logout" class="btn btn-secondary btn-sm">Keluar</button>
+        </div>
+      </header>
+
+      <div id="sim-bar" class="sim-bar" role="region" aria-label="Simulator Status Tampilan Phase 1">
+        <span class="sim-bar-label text-sm text-muted">Simulasi Tampilan:</span>
+        <div class="sim-bar-actions" role="group" aria-label="Pilih status simulasi">
+          <button type="button" class="sim-btn active" data-sim-state="normal" aria-pressed="true">Normal</button>
+          <button type="button" class="sim-btn" data-sim-state="loading" aria-pressed="false">Memuat</button>
+          <button type="button" class="sim-btn" data-sim-state="empty" aria-pressed="false">Kosong</button>
+          <button type="button" class="sim-btn" data-sim-state="error" aria-pressed="false">Galat</button>
+        </div>
+      </div>
+
+      <main id="app-content" class="app-content" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="modal-root" aria-live="polite"></div>
+  <div id="toast-root" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    window.GAS_INITIAL_PARAMS = <?!= JSON.stringify({ page: initialPage || '', kode: initialKode || '', id: initialId || '', appUrl: appUrl || '' }) ?>;
+    window.SIWARGA_VIEWS = window.SIWARGA_VIEWS || {};
+  </script>
+  <?!= include('data_dummy'); ?>
+  <?!= include('views_publik'); ?>
+  <?!= include('views_warga'); ?>
+  <?!= include('views_rt'); ?>
+  <?!= include('views_rw'); ?>
+  <?!= include('app_js'); ?>
+</body>
+</html>

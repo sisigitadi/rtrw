@@ -1,0 +1,430 @@
+<script>
+(function () {
+  'use strict';
+
+  window.SIWARGA_VIEWS = window.SIWARGA_VIEWS || {};
+
+  function getDemoAccounts() {
+    var dummy = window.SW_DUMMY || {};
+    var list = dummy.penduduk || [];
+    var findByRole = function (role, jabatanKeyword) {
+      for (var i = 0; i < list.length; i++) {
+        var p = list[i];
+        if (p.role === role && p.statusMutasi === 'AKTIF') {
+          if (!jabatanKeyword || (p.jabatan && p.jabatan.indexOf(jabatanKeyword) !== -1)) {
+            return p;
+          }
+        }
+      }
+      return null;
+    };
+
+    var out = [];
+    var warga = findByRole('WARGA', null);
+    if (warga) {
+      out.push({
+        label: 'Warga',
+        sub: warga.nama + ' (RT 003)',
+        nik: warga.nik,
+        pin: warga.pin || '123456'
+      });
+    }
+    var ketuaRt = findByRole('PENGURUS_RT', 'Ketua RT');
+    if (ketuaRt) {
+      out.push({
+        label: 'Pengurus RT',
+        sub: ketuaRt.nama + ' (' + ketuaRt.jabatan + ')',
+        nik: ketuaRt.nik,
+        pin: ketuaRt.pin || '123456'
+      });
+    }
+    var bendaharaRt = findByRole('PENGURUS_RT', 'Bendahara RT');
+    if (bendaharaRt) {
+      out.push({
+        label: 'Bendahara RT',
+        sub: bendaharaRt.nama + ' (' + bendaharaRt.jabatan + ')',
+        nik: bendaharaRt.nik,
+        pin: bendaharaRt.pin || '123456'
+      });
+    }
+    var ketuaRw = findByRole('PENGURUS_RW', 'Ketua RW');
+    if (ketuaRw) {
+      out.push({
+        label: 'Pengurus RW',
+        sub: ketuaRw.nama + ' (' + ketuaRw.jabatan + ')',
+        nik: ketuaRw.nik,
+        pin: ketuaRw.pin || '123456'
+      });
+    }
+    return out;
+  }
+
+  window.SIWARGA_VIEWS['/masuk'] = {
+    title: 'Masuk',
+
+    render: function () {
+      var SW = window.SW;
+      var sim = SW.getSimState();
+      if (sim === 'loading') {
+        return SW.renderLoading('Memuat halaman masuk...');
+      }
+      if (sim === 'empty') {
+        return SW.renderEmpty({
+          title: 'Belum ada akun warga terdaftar',
+          message: 'Hubungi Pengurus RT setempat untuk mendaftarkan Kartu Keluarga dan mendapatkan PIN awal Anda.',
+          icon: 'users'
+        });
+      }
+      if (sim === 'error') {
+        return SW.renderError({
+          title: 'Layanan masuk tidak tersedia',
+          message: 'Sistem sedang mengalami gangguan sementara. Silakan muat ulang halaman beberapa saat lagi.'
+        });
+      }
+
+      var currentUser = SW.auth.getUser();
+      var demos = getDemoAccounts();
+      var demoButtonsHtml = '';
+      for (var i = 0; i < demos.length; i++) {
+        var d = demos[i];
+        demoButtonsHtml +=
+          '<button type="button" class="btn btn-secondary btn-sm sw-demo-fill" ' +
+            'data-demo-nik="' + SW.esc(d.nik) + '" ' +
+            'data-demo-pin="' + SW.esc(d.pin) + '" ' +
+            'style="justify-content:flex-start;text-align:left;width:100%;">' +
+            SW.icon('users') +
+            '<span><strong>' + SW.esc(d.label) + '</strong>: ' + SW.esc(d.sub) + '</span>' +
+          '</button>';
+      }
+
+      var activeSessionBanner = '';
+      if (currentUser) {
+        activeSessionBanner =
+          '<div class="alert alert-info" role="status">' +
+            SW.icon('info') +
+            '<div class="stack-sm">' +
+              '<div>Anda sedang masuk sebagai <strong>' + SW.esc(currentUser.nama) + '</strong> (' + SW.esc(SW.getRoleLabel(currentUser.role)) + ').</div>' +
+              '<div><a href="#/dashboard" class="btn btn-primary btn-sm">Lanjut ke Dashboard</a></div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      return (
+        '<div class="stack-lg">' +
+          activeSessionBanner +
+          '<section class="card" aria-labelledby="masuk-heading">' +
+            '<div class="card-header">' +
+              '<div class="stack-sm">' +
+                '<h1 id="masuk-heading" class="page-title" style="font-size:1.5rem;margin-bottom:0;">Masuk ke SiWarga RT/RW</h1>' +
+                '<p class="text-sm text-muted" style="margin-bottom:0;">Gunakan NIK 16 digit dan PIN 6 digit yang diberikan Pengurus RT.</p>' +
+              '</div>' +
+            '</div>' +
+            '<div class="card-body">' +
+              '<form id="form-masuk" class="stack-md" novalidate>' +
+                '<div id="masuk-alert" class="alert alert-error" role="alert" aria-live="polite" hidden></div>' +
+                '<div class="form-group">' +
+                  '<label for="masuk-nik" class="form-label">NIK (16 digit)</label>' +
+                  '<input type="text" id="masuk-nik" name="nik" class="form-input text-mono" ' +
+                    'inputmode="numeric" autocomplete="username" maxlength="16" ' +
+                    'placeholder="Contoh: 3271010506800012" required aria-describedby="masuk-nik-hint masuk-nik-error">' +
+                  '<span id="masuk-nik-hint" class="form-hint">Masukkan 16 digit angka sesuai Kartu Keluarga atau KTP.</span>' +
+                  '<span id="masuk-nik-error" class="form-error" hidden></span>' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<label for="masuk-pin" class="form-label">PIN (6 digit)</label>' +
+                  '<div class="row-gap" style="flex-wrap:nowrap;">' +
+                    '<input type="password" id="masuk-pin" name="pin" class="form-input text-mono" ' +
+                      'inputmode="numeric" autocomplete="current-password" maxlength="6" ' +
+                      'placeholder="6 digit angka" required aria-describedby="masuk-pin-hint masuk-pin-error">' +
+                    '<button type="button" id="btn-toggle-pin" class="btn btn-secondary" aria-pressed="false" aria-label="Tampilkan PIN">' +
+                      SW.icon('eye') +
+                    '</button>' +
+                  '</div>' +
+                  '<span id="masuk-pin-hint" class="form-hint">5 kali salah PIN berturut-turut akan mengunci akun selama 15 menit.</span>' +
+                  '<span id="masuk-pin-error" class="form-error" hidden></span>' +
+                '</div>' +
+                '<div class="form-actions">' +
+                  '<button type="submit" id="btn-masuk-submit" class="btn btn-primary" style="width:100%;">' +
+                    SW.icon('lock') +
+                    '<span id="btn-masuk-label">Masuk</span>' +
+                  '</button>' +
+                '</div>' +
+              '</form>' +
+            '</div>' +
+          '</section>' +
+
+          '<section class="card" aria-labelledby="demo-heading">' +
+            '<div class="card-header">' +
+              '<h2 id="demo-heading" style="font-size:1rem;margin-bottom:0;">Akun Demo (PIN: 123456)</h2>' +
+            '</div>' +
+            '<div class="card-body stack-sm">' +
+              '<p class="text-sm text-muted" style="margin-bottom:4px;">Pilih salah satu peran di bawah untuk mengisi NIK dan PIN secara otomatis.</p>' +
+              demoButtonsHtml +
+            '</div>' +
+          '</section>' +
+
+          '<div class="row-between text-sm text-muted">' +
+            '<span>Ingin mengecek keaslian surat?</span>' +
+            '<a href="#/verifikasi/SW2025RT03RW0701">Contoh Verifikasi Surat</a>' +
+          '</div>' +
+        '</div>'
+      );
+    },
+
+    mount: function (rootEl) {
+      var SW = window.SW;
+      if (SW.getSimState() !== 'normal') {
+        return;
+      }
+
+      var form = rootEl.querySelector('#form-masuk');
+      var nikInput = rootEl.querySelector('#masuk-nik');
+      var pinInput = rootEl.querySelector('#masuk-pin');
+      var nikError = rootEl.querySelector('#masuk-nik-error');
+      var pinError = rootEl.querySelector('#masuk-pin-error');
+      var alertBox = rootEl.querySelector('#masuk-alert');
+      var submitBtn = rootEl.querySelector('#btn-masuk-submit');
+      var submitLabel = rootEl.querySelector('#btn-masuk-label');
+      var togglePinBtn = rootEl.querySelector('#btn-toggle-pin');
+
+      if (togglePinBtn && pinInput) {
+        togglePinBtn.addEventListener('click', function () {
+          var isHidden = pinInput.type === 'password';
+          pinInput.type = isHidden ? 'text' : 'password';
+          togglePinBtn.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+          togglePinBtn.setAttribute('aria-label', isHidden ? 'Sembunyikan PIN' : 'Tampilkan PIN');
+        });
+      }
+
+      var demoBtns = rootEl.querySelectorAll('.sw-demo-fill');
+      for (var i = 0; i < demoBtns.length; i++) {
+        demoBtns[i].addEventListener('click', function () {
+          if (nikInput) {
+            nikInput.value = this.getAttribute('data-demo-nik') || '';
+            nikInput.removeAttribute('aria-invalid');
+          }
+          if (pinInput) {
+            pinInput.value = this.getAttribute('data-demo-pin') || '';
+            pinInput.removeAttribute('aria-invalid');
+          }
+          if (nikError) { nikError.hidden = true; }
+          if (pinError) { pinError.hidden = true; }
+          if (alertBox) { alertBox.hidden = true; }
+          if (submitBtn) { submitBtn.focus(); }
+        });
+      }
+
+      function setFieldError(inputEl, errEl, msg) {
+        if (errEl) {
+          errEl.textContent = msg || '';
+          errEl.hidden = !msg;
+        }
+        if (inputEl) {
+          if (msg) {
+            inputEl.setAttribute('aria-invalid', 'true');
+          } else {
+            inputEl.removeAttribute('aria-invalid');
+          }
+        }
+      }
+
+      function setLoadingState(loading) {
+        if (nikInput) { nikInput.disabled = loading; }
+        if (pinInput) { pinInput.disabled = loading; }
+        if (togglePinBtn) { togglePinBtn.disabled = loading; }
+        if (submitBtn) { submitBtn.disabled = loading; }
+        if (submitLabel) { submitLabel.textContent = loading ? 'Memeriksa akun...' : 'Masuk'; }
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          if (alertBox) { alertBox.hidden = true; alertBox.innerHTML = ''; }
+
+          var nikVal = nikInput ? nikInput.value.trim() : '';
+          var pinVal = pinInput ? pinInput.value.trim() : '';
+          var hasError = false;
+
+          if (!SW.validators.isNik(nikVal)) {
+            setFieldError(nikInput, nikError, 'NIK wajib berisi tepat 16 digit angka.');
+            hasError = true;
+          } else {
+            setFieldError(nikInput, nikError, '');
+          }
+
+          if (!SW.validators.isPin(pinVal)) {
+            setFieldError(pinInput, pinError, 'PIN wajib berisi tepat 6 digit angka.');
+            hasError = true;
+          } else {
+            setFieldError(pinInput, pinError, '');
+          }
+
+          if (hasError) {
+            if (nikError && !nikError.hidden && nikInput) {
+              nikInput.focus();
+            } else if (pinError && !pinError.hidden && pinInput) {
+              pinInput.focus();
+            }
+            return;
+          }
+
+          setLoadingState(true);
+          SW.auth.loginAsync(nikVal, pinVal, function (res) {
+            SW.toast('Selamat datang, ' + res.user.nama + '.', 'success');
+            SW.navigate('/dashboard');
+          }, function (err) {
+            setLoadingState(false);
+            if (alertBox) {
+              alertBox.innerHTML = SW.icon('alert-circle') + '<span>' + SW.esc((err && err.error) ? err.error : 'Gagal masuk. Silakan coba lagi.') + '</span>';
+              alertBox.hidden = false;
+            }
+            if (pinInput) {
+              pinInput.focus();
+            }
+          });
+        });
+      }
+    }
+  };
+
+  function buildVerifikasiBodyHtml(kode, result) {
+    var SW = window.SW;
+    if (result && result.found) {
+      return (
+        '<div class="alert alert-success" role="status">' +
+          SW.icon('shield-check') +
+          '<div class="stack-sm">' +
+            '<div><strong>Status Keaslian: ASLI</strong></div>' +
+            '<p class="text-sm" style="margin-bottom:0;">Dokumen surat dengan nomor di bawah ini tercatat resmi dan telah disahkan secara berjenjang oleh Pengurus RT dan Pengurus RW.</p>' +
+          '</div>' +
+        '</div>' +
+        '<dl class="detail-list">' +
+          '<div class="detail-row">' +
+            '<dt class="detail-label">Status Dokumen</dt>' +
+            '<dd class="detail-value"><span class="badge badge-success">ASLI</span></dd>' +
+          '</div>' +
+          '<div class="detail-row">' +
+            '<dt class="detail-label">Nomor Surat</dt>' +
+            '<dd class="detail-value text-mono"><strong>' + SW.esc(result.nomorSurat) + '</strong></dd>' +
+          '</div>' +
+          '<div class="detail-row">' +
+            '<dt class="detail-label">Kode Verifikasi</dt>' +
+            '<dd class="detail-value text-mono">' + SW.esc(kode.toUpperCase()) + '</dd>' +
+          '</div>' +
+        '</dl>'
+      );
+    }
+    return (
+      '<div class="alert alert-error" role="alert">' +
+        SW.icon('alert-circle') +
+        '<div class="stack-sm">' +
+          '<div><strong>Status Keaslian: TIDAK DITEMUKAN</strong></div>' +
+          '<p class="text-sm" style="margin-bottom:0;">Kode verifikasi tidak cocok dengan arsip surat atau surat tersebut belum disahkan oleh Pengurus RW.</p>' +
+        '</div>' +
+      '</div>' +
+      '<dl class="detail-list">' +
+        '<div class="detail-row">' +
+          '<dt class="detail-label">Status Dokumen</dt>' +
+          '<dd class="detail-value"><span class="badge badge-danger">TIDAK DITEMUKAN</span></dd>' +
+        '</div>' +
+        '<div class="detail-row">' +
+          '<dt class="detail-label">Kode yang Diperiksa</dt>' +
+          '<dd class="detail-value text-mono">' + SW.esc(kode || '-') + '</dd>' +
+        '</div>' +
+      '</dl>'
+    );
+  }
+
+  window.SIWARGA_VIEWS['/verifikasi/:kode'] = {
+    title: 'Verifikasi Surat',
+
+    render: function (params) {
+      var SW = window.SW;
+      var sim = SW.getSimState();
+      if (sim === 'loading') {
+        return SW.renderLoading('Memeriksa keaslian dokumen surat...');
+      }
+      if (sim === 'empty') {
+        return SW.renderEmpty({
+          title: 'Kode verifikasi tidak tersedia',
+          message: 'Pindai QR Code yang tertera pada dokumen PDF resmi untuk memeriksa keaslian surat.',
+          icon: 'shield-check',
+          actionLabel: 'Halaman Masuk',
+          actionHref: '/masuk'
+        });
+      }
+      if (sim === 'error') {
+        return SW.renderError({
+          title: 'Gagal memeriksa kode verifikasi',
+          message: 'Terjadi gangguan saat memeriksa data keaslian surat. Silakan coba beberapa saat lagi.'
+        });
+      }
+
+      var kode = (params && params.kode) ? String(params.kode).trim() : '';
+      var isGas = SW.isGasRuntime();
+      var statusBlock = isGas
+        ? SW.renderLoading('Memeriksa keaslian dokumen surat di server...')
+        : buildVerifikasiBodyHtml(kode, SW.api.verifySuratByKode(kode));
+      var printDisabled = isGas ? ' disabled' : '';
+
+      return (
+        '<div class="stack-lg">' +
+          '<article class="surat-print-sheet stack-md" aria-labelledby="verifikasi-heading">' +
+            '<div class="row-between">' +
+              '<div class="stack-sm">' +
+                '<h1 id="verifikasi-heading" class="page-title" style="font-size:1.5rem;margin-bottom:0;">Verifikasi Keaslian Surat</h1>' +
+                '<p class="text-sm text-muted" style="margin-bottom:0;">Pemeriksaan dokumen resmi SiWarga RT/RW</p>' +
+              '</div>' +
+              SW.icon('shield-check') +
+            '</div>' +
+            '<div id="verifikasi-result-box" class="stack-md">' + statusBlock + '</div>' +
+            '<p class="text-sm text-muted measure-70ch" style="margin-bottom:0;">' +
+              'Untuk melindungi privasi warga, halaman verifikasi publik tidak menampilkan nama, NIK, atau alamat pemohon. Cocokkan nomor surat pada hasil ini dengan nomor yang tertera di dokumen cetak.' +
+            '</p>' +
+          '</article>' +
+          '<div class="row-between no-print">' +
+            '<a href="#/masuk" class="btn btn-secondary">' + SW.icon('arrow-left') + '<span>Ke Halaman Masuk</span></a>' +
+            '<button type="button" id="btn-print-verifikasi" class="btn btn-primary"' + printDisabled + '>' + SW.icon('printer') + '<span>Cetak Hasil</span></button>' +
+          '</div>' +
+        '</div>'
+      );
+    },
+
+    mount: function (rootEl, params) {
+      var SW = window.SW;
+      if (SW.getSimState() !== 'normal') {
+        return;
+      }
+      var printBtn = rootEl.querySelector('#btn-print-verifikasi');
+      if (printBtn) {
+        printBtn.addEventListener('click', function () {
+          window.print();
+        });
+      }
+
+      if (SW.isGasRuntime()) {
+        var kode = (params && params.kode) ? String(params.kode).trim() : '';
+        var resultBox = rootEl.querySelector('#verifikasi-result-box');
+        SW.remote.verifySurat(kode, function (res) {
+          if (resultBox) {
+            resultBox.innerHTML = buildVerifikasiBodyHtml(kode, res);
+          }
+          if (printBtn) {
+            printBtn.disabled = false;
+          }
+        }, function (err) {
+          if (resultBox) {
+            resultBox.innerHTML = SW.renderError({
+              title: 'Gagal memeriksa kode verifikasi',
+              message: (err && err.error) ? err.error : 'Tidak dapat terhubung ke server verifikasi.'
+            });
+          }
+          if (printBtn) {
+            printBtn.disabled = true;
+          }
+        });
+      }
+    }
+  };
+})();
+</script>
