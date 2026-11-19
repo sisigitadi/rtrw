@@ -31,4 +31,14 @@ indexHtml = indexHtml.replace(/<\?!=\s*include\(['"]([a-zA-Z0-9_]+)['"]\);\s*\?>
 });
 
 fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml, 'utf8');
+
+// Copy static assets (OG image, favicon) to dist
+['og-image.png', 'favicon.png'].forEach(file => {
+  const src = path.join(rootDir, file);
+  const dest = path.join(distDir, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+  }
+});
+
 console.log('GitHub Pages standalone index.html built successfully in dist/index.html');
