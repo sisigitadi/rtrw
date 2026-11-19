@@ -5,6 +5,7 @@ Aplikasi web berbasis Google Apps Script (GAS) Web App Modular untuk mengelola d
 Dokumentasi spesifikasi lengkap tersedia pada [PRD.md](PRD.md), panduan deployment pada [DEPLOYMENT.md](DEPLOYMENT.md), dan panduan aktivasi workspace pada [RetroBOT.md](RetroBOT.md).
 
 Repository Resmi: [https://github.com/sisigitadi/Sirtrw](https://github.com/sisigitadi/Sirtrw)
+Live Demo GitHub Pages: [https://sisigitadi.github.io/Sirtrw/](https://sisigitadi.github.io/Sirtrw/)
 
 ## Arsitektur Singkat
 
