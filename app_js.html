@@ -2758,7 +2758,11 @@
 
     var links = sidebar.querySelectorAll('.nav-link');
     for (var l = 0; l < links.length; l++) {
-      links[l].addEventListener('click', closeMobileDrawer);
+      links[l].addEventListener('click', function () {
+        if (window.innerWidth <= 960) {
+          closeMobileDrawer();
+        }
+      });
     }
     var sideClose = document.getElementById('sidebar-btn-close');
     if (sideClose) {
@@ -2806,10 +2810,6 @@
   }
 
   function closeMobileDrawer() {
-    var shell = document.getElementById('layout-app');
-    if (shell && shell.classList.contains('sidebar-pinned') && window.innerWidth > 960) {
-      return;
-    }
     var sidebar = document.getElementById('app-sidebar');
     var backdrop = document.getElementById('sidebar-backdrop');
     var toggleBtn = document.getElementById('btn-mobile-menu');

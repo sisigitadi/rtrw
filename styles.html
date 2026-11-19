@@ -197,7 +197,7 @@
     position: fixed;
     inset: 0;
     background-color: rgba(27, 38, 35, 0.45);
-    z-index: 45;
+    z-index: 35;
   }
 
   .sidebar-backdrop.is-open {
@@ -205,24 +205,16 @@
   }
 
   .app-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 280px;
-    max-width: 85vw;
+    width: 264px;
+    flex-shrink: 0;
     background-color: var(--color-surface);
     border-right: 1px solid var(--color-border);
     padding: var(--space-5) var(--space-3);
+    position: sticky;
+    top: 0;
+    height: 100vh;
     overflow-y: auto;
-    z-index: 50;
-    transform: translateX(-100%);
-    transition: transform 0.18s ease;
-    box-shadow: var(--shadow-md);
-  }
-
-  .app-sidebar.is-open {
-    transform: translateX(0);
+    z-index: 40;
   }
 
   .sidebar-header {
@@ -242,7 +234,7 @@
   }
 
   .sidebar-close-btn {
-    display: inline-flex;
+    display: none;
   }
 
   .sidebar-nav {
@@ -332,9 +324,7 @@
   }
 
   .mobile-menu-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
+    display: none;
   }
 
   .header-user {
@@ -1127,27 +1117,6 @@
     }
 
     .responsive-table td:not([data-label])::before {
-      display: none;
-    }
-  }
-
-  /* Desktop Pinned Sidebar (Opsional jika ingin disematkan permanen) */
-  @media (min-width: 961px) {
-    .app-shell.sidebar-pinned .app-sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      transform: none;
-      box-shadow: none;
-      z-index: 40;
-      width: 264px;
-    }
-
-    .app-shell.sidebar-pinned .sidebar-backdrop {
-      display: none !important;
-    }
-
-    .app-shell.sidebar-pinned .sidebar-close-btn {
       display: none;
     }
   }
